@@ -9,16 +9,57 @@
 
 <h1>Wist pointberegner</h1>
 
-<!-- Simpelt UI - du må gerne ændre det helt selv -->
+<label for="contract">Meldte stik :</label>
+<select id="contract">
+    <option value="">Vælg...</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+</select>
+<br>
 
-<label for="contract">Meldte stik (kontrakt):</label>
-<input id="contract" type="number"><br>
+<label for="type">Meldingstype:</label>
+<select id="type">
+    <option value="normal">Normal</option>
+    <option value="gode">Gode</option>
+    <option value="halv">Halve</option>
+    <option value="vip">Vip</option>
+</select>
+<br>
 
-<label for="taken">Tagne stik:</label>
-<input id="taken" type="number"><br>
+<h3>Special-meldinger:</h3>
 
-<label for="multiplier">Multiplikator:</label>
-<input id="multiplier" type="number" value="1"><br>
+<button onclick="setSpecial('sol')">Sol</button>
+<button onclick="setSpecial('rensol')">Ren sol</button>
+<button onclick="setSpecial('bordstik')">På bordet (med stik)</button>
+<button onclick="setSpecial('bordnul')">På bordet (uden stik)</button>
+<button onclick="setSpecial('selvpalle')">selvpalle</button>
+
+<p id="specialDisplay"></p>
+
+<label for="taken">Vundne stik:</label>
+<select id="taken">
+    <option value="">Vælg...</option>
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+</select>
+<br>
 
 <button onclick="handleRound()">Beregn point</button>
 

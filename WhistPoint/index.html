@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>Wist pointberegner</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>Wist pointberegner</h1>
+
+<!-- Simpelt UI - du må gerne ændre det helt selv -->
+
+<label for="contract">Meldte stik (kontrakt):</label>
+<input id="contract" type="number"><br>
+
+<label for="taken">Tagne stik:</label>
+<input id="taken" type="number"><br>
+
+<label for="multiplier">Multiplikator:</label>
+<input id="multiplier" type="number" value="1"><br>
+
+<button onclick="handleRound()">Beregn point</button>
+
+<p id="result"></p>
+
+<script src="script.js"></script>
+</body>
+</html>

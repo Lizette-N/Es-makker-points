@@ -1,7 +1,16 @@
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 10px;
+    text-align: center;   /* VIGTIG: centrer alt indhold vandret */
+}
+
 label {
     display: inline-block;
     width: 200px;
     margin-bottom: 10px;
+    text-align: right;
 }
 
 select {

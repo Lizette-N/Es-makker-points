@@ -27,21 +27,24 @@
     <option value="normal">Normal</option>
     <option value="gode">Gode</option>
     <option value="halv">Halve</option>
-    <option value="vip">Vip</option>
+    <option value="vip i 1.">Vip i 1.</option>
+    <option value="vip i 2.">Vip i 2.</option>
+    <option value="vip i 3.">Vip i 3.</option>
+    <option value="sol">Sol</option>
+    <option value="rensol">Ren sol</option>
+    <option value="bordstik">På bordet (med stik)</option>
+    <option value="bordnul">På bordet (uden stik)</option>
+
 </select>
 <br>
 
-<h3>Special-meldinger:</h3>
-
-<button onclick="setSpecial('sol')">Sol</button>
-<button onclick="setSpecial('rensol')">Ren sol</button>
-<button onclick="setSpecial('bordstik')">På bordet (med stik)</button>
-<button onclick="setSpecial('bordnul')">På bordet (uden stik)</button>
-<button onclick="setSpecial('selvpalle')">selvpalle</button>
-
+<label>
+    <input type="checkbox" id="selvpalleCheck" onchange="toggleSelvpalle()">
+    Selvpalle
+</label>
 <p id="specialDisplay"></p>
 
-<label for="taken">Vundne stik:</label>
+<label for="taken">Stik taget af melder:</label>
 <select id="taken">
     <option value="">Vælg...</option>
     <option value="0">0</option>

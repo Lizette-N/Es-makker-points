@@ -12,16 +12,53 @@ function toggleSelvpalle() {
 // 1) Beregn samlede point for runden
 function calculatePoints(melding, taken, type, special) {
     // SPECIALMELDINGER FRA DROPDOWN OVERSKRIVER ALT ANDET
-    if (type === "sol") return 6;
-    if (type === "rensol") return 8;
-    if (type === "bordstik") return 10;
-    if (type === "bordnul") return 12;
+    if (type === "sol") {
+        const base = 6;
+        return {
+            melder: base,
+            makker: base,
+            mod1: -base,
+            mod2: -base
+        };
+    }
+    if (type === "rensol") {
+        const base = 8;
+        return {
+            melder: base,
+            makker: base,
+            mod1: -base,
+            mod2: -base
+        };
+    }
+    if (type === "bordstik") {
+        const base = 10;
+        return {
+            melder: base,
+            makker: base,
+            mod1: -base,
+            mod2: -base
+        };
+    }
+    if (type === "bordnul") {
+        const base = 12;
+        return {
+            melder: base,
+            makker: base,
+            mod1: -base,
+            mod2: -base
+        };
+    }
 
     // Her bruger vi dine to hjælpefunktioner
     const meldingPoints = meldingværdi(melding, type, taken);
     const takenPoints = vundneværdi(taken);
 
-    let total = meldingPoints * takenPoints;
+    let total = 0;
+    if (taken<melding){
+        total = meldingPoints * (melding - taken);
+    } else {
+        total = meldingPoints * takenPoints;
+    }
 
     // Hvis selvpalle skal give en ekstra modifikator, kan du ændre her
     if (special === "selvpalle") {
@@ -29,7 +66,15 @@ function calculatePoints(melding, taken, type, special) {
         // total *= 2;
     }
 
-    return Math.ceil(total);
+    const base = Math.ceil(total);
+
+    // RETURNÉR 4 VÆRDIER - EN TIL HVER SPILLER
+    return {
+        melder: base,
+        makker: base,
+        mod1: -base,
+        mod2: -base
+    };
 }
 
 // 2) Din funktion til meldingværdien
@@ -64,14 +109,14 @@ function meldingværdi(melding, type, taken) {
     }
 
     switch (melding) {
-        case 7:  TempPoints = 0.0;  break;
-        case 8:  TempPoints = 0.0;  break;
-        case 9:  TempPoints = 0.25; break;
-        case 10: TempPoints = 0.5;  break;
-        case 11: TempPoints = 1.0;  break;
-        case 12: TempPoints = 2.0;  break;
-        case 13: TempPoints = 4.0;  break;
-        case 14: TempPoints = 8.0;  break;
+        case 7: TempPoints = 0.0; break;
+        case 8: TempPoints = 0.0; break;
+        case 9: TempPoints = 0.25; break;
+        case 10: TempPoints = 0.5; break;
+        case 11: TempPoints = 1.0; break;
+        case 12: TempPoints = 2.0; break;
+        case 13: TempPoints = 4.0; break;
+        case 14: TempPoints = 8.0; break;
         case 15: TempPoints = 16.0; break;
         case 16: TempPoints = 32.0; break;
         case 17: TempPoints = 32.0; break;
@@ -87,9 +132,9 @@ function meldingværdi(melding, type, taken) {
 // 3) Din funktion til vundne stik
 function vundneværdi(taken) {
     switch (taken) {
-        case 7:  return 1;
-        case 8:  return 2;
-        case 9:  return 3;
+        case 7: return 1;
+        case 8: return 2;
+        case 9: return 3;
         case 10: return 4;
         case 11: return 5;
         case 12: return 6;
@@ -101,8 +146,8 @@ function vundneværdi(taken) {
 
 function handleRound() {
     const meldingVal = document.getElementById("contract").value;
-    const takenVal   = document.getElementById("taken").value;
-    const type       = document.getElementById("type").value;
+    const takenVal = document.getElementById("taken").value;
+    const type = document.getElementById("type").value;
 
     // Simpel validering - tjek for tomme felter
     if (meldingVal === "" || takenVal === "" || type === "") {
@@ -112,9 +157,22 @@ function handleRound() {
     }
 
     const melding = Number(meldingVal);
-    const taken   = Number(takenVal);
+    const taken = Number(takenVal);
 
-    const points = calculatePoints(melding, taken, type, special);
+    const pts = calculatePoints(melding, taken, type, special);
 
-    document.getElementById("result").textContent = "Point: " + points;
-}
+    // pts = { melder: X, makker: X, mod1: -X, mod2: -X }
+
+    if (special === "selvpalle") {
+        document.getElementById("result").innerText =
+            `Melder (selvpalle): ${pts.melder*3}
+            Modstander 1:       ${pts.mod1}
+            Modstander 2:       ${pts.mod1}
+            Modstander 3:       ${pts.mod1}`;
+    } else {
+        document.getElementById("result").innerText =
+            `Melder:        ${pts.melder}
+            Makker:        ${pts.makker}
+            Modstander 1:  ${pts.mod1}
+            Modstander 2:  ${pts.mod1}`;
+    }}

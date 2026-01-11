@@ -54,19 +54,28 @@ function calculatePoints(melding, taken, type, special) {
     const takenPoints = vundneværdi(taken);
 
     let total = 0;
-    if (taken<melding){
+    if (taken < melding) {
         total = meldingPoints * (melding - taken);
     } else {
         total = meldingPoints * takenPoints;
     }
 
+    let base;
+    if (total < 0) {
+        base = Math.floor(total);   // -1.5 -> -2
+    } else {
+        base = Math.ceil(total);    // fx 1.5 -> 2
+    }
     // Hvis selvpalle skal give en ekstra modifikator, kan du ændre her
     if (special === "selvpalle") {
-        // eksempel: dobbelt point - ret til dine egne regler
-        // total *= 2;
+        return {
+            melder: base * 3,
+            mod1: -base,
+            mod2: -base,
+            mod3: -base
+        };
     }
 
-    const base = Math.ceil(total);
 
     // RETURNÉR 4 VÆRDIER - EN TIL HVER SPILLER
     return {
@@ -123,7 +132,7 @@ function meldingværdi(melding, type, taken) {
     }
 
     if (taken < melding) {
-        return TempPoints * (-2);
+        return TempPoints * (-2.0);
     } else {
         return TempPoints;
     }
@@ -148,8 +157,33 @@ function handleRound() {
     const meldingVal = document.getElementById("contract").value;
     const takenVal = document.getElementById("taken").value;
     const type = document.getElementById("type").value;
+    const specialType = document.getElementById("specialType").value;
 
-    // Simpel validering - tjek for tomme felter
+    // Læs status fra boksen
+    const p1status = document.getElementById("p1status").value;
+    const p2status = document.getElementById("p2status").value;
+    const p3status = document.getElementById("p3status").value;
+    const p4status = document.getElementById("p4status").value;
+
+    // Hvis der er valgt en special-type i boksen, bruger vi KUN den
+    if (specialType !== "none") {
+        const ptsSpecial = calculateSpecialBox(
+            specialType,
+            p1status,
+            p2status,
+            p3status,
+            p4status
+        );
+
+        document.getElementById("result").innerText =
+            `Melder:    ${ptsSpecial.melder}
+Spiller 2: ${ptsSpecial.p2}
+Spiller 3: ${ptsSpecial.p3}
+Spiller 4: ${ptsSpecial.p4}`;
+        return;
+    }
+
+    // Ellers - normal logik (som du allerede havde)
     if (meldingVal === "" || takenVal === "" || type === "") {
         document.getElementById("result").textContent =
             "Vælg både meldte stik, meldingstype og stik taget.";
@@ -161,18 +195,52 @@ function handleRound() {
 
     const pts = calculatePoints(melding, taken, type, special);
 
-    // pts = { melder: X, makker: X, mod1: -X, mod2: -X }
-
     if (special === "selvpalle") {
         document.getElementById("result").innerText =
-            `Melder (selvpalle): ${pts.melder*3}
-            Modstander 1:       ${pts.mod1}
-            Modstander 2:       ${pts.mod1}
-            Modstander 3:       ${pts.mod1}`;
+            `Melder (selvpalle): ${pts.melder}
+Modstander 1:       ${pts.mod1}
+Modstander 2:       ${pts.mod2}
+Modstander 3:       ${pts.mod3}`;
     } else {
         document.getElementById("result").innerText =
             `Melder:        ${pts.melder}
-            Makker:        ${pts.makker}
-            Modstander 1:  ${pts.mod1}
-            Modstander 2:  ${pts.mod1}`;
-    }}
+Makker:        ${pts.makker}
+Modstander 1:  ${pts.mod1}
+Modstander 2:  ${pts.mod2}`;
+    }
+}
+
+function calculateSpecialBox(specialType, p1status, p2status, p3status, p4status) {
+    let base = 0;
+
+    switch (specialType) {
+        case "sol":
+            base = 6;
+            break;
+        case "rensol":
+            base = 8;
+            break;
+        case "bordstik":
+            base = 10;
+            break;
+        case "bordnul":
+            base = 12;
+            break;
+        default:
+            // ingen special
+            return { melder: 0, p2: 0, p3: 0, p4: 0 };
+    }
+
+    function pointsFor(status) {
+        if (status === "win") return base;
+        if (status === "lose") return -base;
+        return 0; // "off"
+    }
+
+    return {
+        melder: pointsFor(p1status),
+        p2: pointsFor(p2status),
+        p3: pointsFor(p3status),
+        p4: pointsFor(p4status)
+    };
+}

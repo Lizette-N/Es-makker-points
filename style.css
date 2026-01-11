@@ -35,3 +35,57 @@ button {
     margin-top: 20px;
     font-weight: bold;
 }
+body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 10px;
+    text-align: center;
+}
+
+label {
+    display: inline-block;
+    margin-top: 6px;
+    margin-bottom: 2px;
+}
+
+select {
+    margin-bottom: 6px;
+}
+
+/* Den lille side-menu-boks til specialmeldinger */
+.special-box {
+    display: inline-block;
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+
+    font-size: 12px;      /* lidt mindre skrift */
+    text-align: left;     /* labels og select venstrestillet inde i boksen */
+}
+
+.special-box {
+    display: block;      /* <-- tvinger boksen til egen linje */
+    width: 100%;         /* <-- gør at næste element ryger under */
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+
+    font-size: 12px;
+    text-align: left;
+}
+
+.special-box h3 {
+    margin-top: 0;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.special-box p {
+    margin: 2px 0 6px 0;
+    font-size: 11px;
+}

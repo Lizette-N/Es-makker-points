@@ -30,19 +30,63 @@
     <option value="vip i 1.">Vip i 1.</option>
     <option value="vip i 2.">Vip i 2.</option>
     <option value="vip i 3.">Vip i 3.</option>
-    <option value="sol">Sol</option>
-    <option value="rensol">Ren sol</option>
-    <option value="bordstik">På bordet (med stik)</option>
-    <option value="bordnul">På bordet (uden stik)</option>
-
 </select>
 <br>
+
 
 <label>
     <input type="checkbox" id="selvpalleCheck" onchange="toggleSelvpalle()">
     Selvpalle
 </label>
 <p id="specialDisplay"></p>
+
+<div class="special-box">
+    <h3>Special sol / ren sol / på bordet</h3>
+
+    <label for="specialType">Special-type:</label>
+    <select id="specialType">
+        <option value="none">Ingen special</option>
+        <option value="sol">Sol</option>
+        <option value="rensol">Ren sol</option>
+        <option value="bordstik">På bordet (med stik)</option>
+        <option value="bordnul">På bordet (uden stik)</option>
+    </select>
+    <br>
+
+    <p>Hvem er med, og vinder/taber de?</p>
+
+    <label for="p1status">Melder:</label>
+    <select id="p1status">
+        <option value="off">Ikke med</option>
+        <option value="win">Med og vinder</option>
+        <option value="lose">Med og taber</option>
+    </select>
+    <br>
+
+    <label for="p2status">Spiller 2:</label>
+    <select id="p2status">
+        <option value="off">Ikke med</option>
+        <option value="win">Med og vinder</option>
+        <option value="lose">Med og taber</option>
+    </select>
+    <br>
+
+    <label for="p3status">Spiller 3:</label>
+    <select id="p3status">
+        <option value="off">Ikke med</option>
+        <option value="win">Med og vinder</option>
+        <option value="lose">Med og taber</option>
+    </select>
+    <br>
+
+    <label for="p4status">Spiller 4:</label>
+    <select id="p4status">
+        <option value="off">Ikke med</option>
+        <option value="win">Med og vinder</option>
+        <option value="lose">Med og taber</option>
+    </select>
+    <br>
+</div>
 
 <label for="taken">Stik taget af melder:</label>
 <select id="taken">

@@ -23,44 +23,67 @@ function validateRoundInput(contract, taken) {
     return null;
 }
 
-function calculateScore({ contract, type, taken }) {
-        if (contract>taken){
-            return calculateLoss(contract, type, taken);
-        } else {
-            return calculateWin(contract, type, taken);
-        }
+const matrix = [
+    [7, 0.0, 1],
+    [8, 0.0, 2],
+    [9, 0.25, 3],
+    [10, 0.50, 4],
+    [11, 1.00, 5],
+    [12, 2.00, 6],
+    [13, 4.00, 7],
+    [14, 8.00, 8],
+    [15, 16.00, 9],
+    [16, 32.00, 10]
+];
+
+function normalizeTricks(value) {
+    return value === 13 ? 14 : value;
+}
+
+function findRowIndexByTricks(tricks) {
+    return matrix.findIndex(row => row[0] === tricks);
+}
+
+function getTypeOffset(type) {
+    if (type === "normal") {
+        return 0;
     }
 
+    if (type === "vip i 2.") {
+        return 2;
+    }
+
+    if (type === "vip i 3.") {
+        return 3;
+    }
+
+    return 1;
+}
+
+function calculateScore({ contract, type, taken }) {
+    if (contract > taken) {
+        return calculateLoss(contract, type, taken);
+    }
+
+    return calculateWin(contract, type, taken);
+}
+
 function calculateLoss(contract, type, taken) {
-    const matrix = [
-        [7, 0.0, 1],
-        [8, 0.0, 2],
-        [9, 0.25, 3],
-        [10, 0.50, 4],
-        [11, 1.00, 5],
-        [12, 2.00, 6],
-        [13, 4.00, 7],
-        [14, 8.00, 8],
-        [15, 16.00, 9],
-        [16, 32.00, 10]
-        ];
-    const missingTricks = contract - taken;
+    const normalizedContract = normalizeTricks(contract);
+    const normalizedTaken = normalizeTricks(taken);
+    const missingTricks = normalizedContract - normalizedTaken;
 
     if (missingTricks <= 0) {
         return 0;
     }
 
-    let rowIndex = matrix.findIndex(row => row[0] === contract);
+    let rowIndex = findRowIndexByTricks(normalizedContract);
 
     if (rowIndex === -1) {
         return 0;
     }
 
-    if (type !== "normal") {
-        rowIndex += 1;
-    }
-
-    rowIndex += 1;
+    rowIndex += getTypeOffset(type) + 1;
 
     if (rowIndex >= matrix.length) {
         rowIndex = matrix.length - 1;
@@ -68,26 +91,36 @@ function calculateLoss(contract, type, taken) {
 
     const ratePerTrick = matrix[rowIndex][1];
 
-    return ratePerTrick * missingTricks;
+    return -Math.ceil(ratePerTrick * missingTricks);
 }
 
 function calculateWin(contract, type, taken) {
-    const matrix = [
-        [7, 0.0, 1],
-        [8, 0.0, 2],
-        [9, 0.25, 3],
-        [10, 0.50, 4],
-        [11, 1.00, 5],
-        [12, 2.00, 6],
-        [13, 4.00, 7],
-        [14, 8.00, 8],
-        [15, 16.00, 9],
-        [16, 32.00, 10]
-        ];
-        return 3;
+    const normalizedContract = normalizeTricks(contract);
+    const normalizedTaken = normalizeTricks(taken);
+
+    let rowIndex = findRowIndexByTricks(normalizedContract);
+
+    if (rowIndex === -1) {
+        return 0;
+    }
+
+    rowIndex += getTypeOffset(type);
+
+    if (rowIndex >= matrix.length) {
+        rowIndex = matrix.length - 1;
+    }
+
+    const rate = matrix[rowIndex][1];
+    const takenRowIndex = findRowIndexByTricks(normalizedTaken);
+
+    if (takenRowIndex === -1) {
+        return 0;
+    }
+
+    const takenMultiplier = matrix[takenRowIndex][2];
+
+    return Math.ceil(rate * takenMultiplier);
 }
-
-
 
 function handleRound() {
     const contract = Number.parseInt(document.getElementById("contract").value, 10);
@@ -114,12 +147,19 @@ function handleRound() {
 
 function runTests() {
     const tests = [
-        { input: [9, "gode", 7], expected: 2 },
-        { input: [9, "normal", 7], expected: 1 }
+        { input: [9, "gode", 7], expected: -2, fn: calculateLoss },
+        { input: [9, "normal", 7], expected: -1, fn: calculateLoss },
+        { input: [8, "gode", 7], expected: -1, fn: calculateLoss },
+        { input: [9, "gode", 9], expected: 2, fn: calculateWin },
+        { input: [9, "gode", 14], expected: 4, fn: calculateWin },
+        { input: [13, "normal", 13], expected: 64, fn: calculateWin },
+        { input: [9, "vip i 1.", 9], expected: 2, fn: calculateWin },
+        { input: [9, "vip i 2.", 9], expected: 3, fn: calculateWin },
+        { input: [9, "vip i 3.", 9], expected: 6, fn: calculateWin }
     ];
 
     tests.forEach((test, index) => {
-        const actual = calculateLoss(...test.input);
+        const actual = test.fn(...test.input);
         console.log(`Test ${index + 1}:`, actual === test.expected ? "OK" : "FEJL");
     });
 }

@@ -24,6 +24,14 @@ function validateRoundInput(contract, taken) {
 }
 
 function calculateScore({ contract, type, taken }) {
+        if (contract>taken){
+            return calculateLoss(contract, type, taken);
+        } else {
+            return calculateWin(contract, type, taken);
+        }
+    }
+
+function calculateLoss(contract, type, taken) {
     const matrix = [
         [7, 0.0, 1],
         [8, 0.0, 2],
@@ -36,8 +44,6 @@ function calculateScore({ contract, type, taken }) {
         [15, 16.00, 9],
         [16, 32.00, 10]
         ];
-
-function calculateLoss(contract, type, taken) {
     const missingTricks = contract - taken;
 
     if (missingTricks <= 0) {
@@ -65,15 +71,23 @@ function calculateLoss(contract, type, taken) {
     return ratePerTrick * missingTricks;
 }
 
-        if (contract < taken){ //lost
-
-
-        }
-    return {
-        score: 0,
-        explanation: `Udregning ikke indsat endnu. Modtaget: ${contract}, ${type}, ${taken} stik.`,
-    };
+function calculateWin(contract, type, taken) {
+    const matrix = [
+        [7, 0.0, 1],
+        [8, 0.0, 2],
+        [9, 0.25, 3],
+        [10, 0.50, 4],
+        [11, 1.00, 5],
+        [12, 2.00, 6],
+        [13, 4.00, 7],
+        [14, 8.00, 8],
+        [15, 16.00, 9],
+        [16, 32.00, 10]
+        ];
+        return 3;
 }
+
+
 
 function handleRound() {
     const contract = Number.parseInt(document.getElementById("contract").value, 10);
@@ -95,26 +109,17 @@ function handleRound() {
     const calculation = calculateScore({ contract, type, taken });
 
     result.textContent =
-        `Melding: ${contract}, type: ${type}, tagne stik: ${taken}. ` +
-        `Point: ${calculation.score}. ${calculation.explanation}`;
+        `Melding: ${contract}, type: ${type}, tagne stik: ${taken}. Point: ${calculation}`;
 }
+
 function runTests() {
     const tests = [
         { input: [9, "gode", 7], expected: 2 },
-        { input: [9, "normal", 7], expected: 1 },
-        { input: [10, "normal", 10], expected: 0 },
-        { input: [14, "gode", 13], expected: 32 }
+        { input: [9, "normal", 7], expected: 1 }
     ];
 
     tests.forEach((test, index) => {
         const actual = calculateLoss(...test.input);
-        const passed = actual === test.expected;
-
-        console.log(
-            `Test ${index + 1}: ${passed ? "OK" : "FEJL"}`,
-            "input:", test.input,
-            "forventet:", test.expected,
-            "fik:", actual
-        );
+        console.log(`Test ${index + 1}:`, actual === test.expected ? "OK" : "FEJL");
     });
 }

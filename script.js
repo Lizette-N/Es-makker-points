@@ -44,22 +44,6 @@ function findRowIndexByTricks(tricks) {
     return matrix.findIndex(row => row[0] === tricks);
 }
 
-function getTypeOffset(type) {
-    if (type === "normal") {
-        return 0;
-    }
-
-    if (type === "vip i 2.") {
-        return 2;
-    }
-
-    if (type === "vip i 3.") {
-        return 3;
-    }
-
-    return 1;
-}
-
 function calculateScore({ contract, type, taken }) {
     if (contract > taken) {
         return calculateLoss(contract, type, taken);
@@ -83,7 +67,11 @@ function calculateLoss(contract, type, taken) {
         return 0;
     }
 
-    rowIndex += getTypeOffset(type) + 1;
+    if (type !== "normal") {
+        rowIndex += 1;
+    }
+
+    rowIndex += 1;
 
     if (rowIndex >= matrix.length) {
         rowIndex = matrix.length - 1;
@@ -104,7 +92,9 @@ function calculateWin(contract, type, taken) {
         return 0;
     }
 
-    rowIndex += getTypeOffset(type);
+    if (type !== "normal") {
+        rowIndex += 1;
+    }
 
     if (rowIndex >= matrix.length) {
         rowIndex = matrix.length - 1;
@@ -153,9 +143,9 @@ function runTests() {
         { input: [9, "gode", 9], expected: 2, fn: calculateWin },
         { input: [9, "gode", 14], expected: 4, fn: calculateWin },
         { input: [13, "normal", 13], expected: 64, fn: calculateWin },
-        { input: [9, "vip i 1.", 9], expected: 2, fn: calculateWin },
-        { input: [9, "vip i 2.", 9], expected: 3, fn: calculateWin },
-        { input: [9, "vip i 3.", 9], expected: 6, fn: calculateWin }
+        { input: [7, "gode", 6], expected: -1, fn: calculateLoss },
+        { input: [12, "halve", 13], expected: 32, fn: calculateWin }
+
     ];
 
     tests.forEach((test, index) => {

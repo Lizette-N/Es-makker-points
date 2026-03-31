@@ -19,6 +19,7 @@
     <option value="11">11</option>
     <option value="12">12</option>
     <option value="13">13</option>
+    <option value="14">14</option>
 </select>
 <br>
 
@@ -38,6 +39,28 @@
     <input type="checkbox" id="selvpalleCheck" onchange="toggleSelvpalle()">
     Selvpalle
 </label>
+<label for="taken">Stik taget af melder:</label>
+<select id="taken">
+    <option value="">Vælg...</option>
+    <option value="0">0</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+    <option value="7">7</option>
+    <option value="8">8</option>
+    <option value="9">9</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    <option value="13">13</option>
+    <option value="14">14</option>
+</select>
+<br>
+
+<button onclick="handleRound()">Beregn point</button>
 <p id="specialDisplay"></p>
 
 <div class="special-box">
@@ -87,29 +110,6 @@
     </select>
     <br>
 </div>
-
-<label for="taken">Stik taget af melder:</label>
-<select id="taken">
-    <option value="">Vælg...</option>
-    <option value="0">0</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
-    <option value="13">13</option>
-</select>
-<br>
-
-<button onclick="handleRound()">Beregn point</button>
-
 <p id="result"></p>
 
 <script src="script.js"></script>

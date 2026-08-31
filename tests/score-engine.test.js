@@ -79,10 +79,10 @@ test("specialmeldinger genbruger Sol-modellen med deres egen værdi", () => {
     ]
   });
 
-  assert.deepEqual(result, { a: 10, b: 10, c: -10, d: -10 });
+  assert.deepEqual(result, { a: 6, b: 6, c: -6, d: -6 });
 });
 
-test("Ren Sol hjem mod ned giver ti point mellem spillerne", () => {
+test("Ren Sol hjem mod ned giver seks point mellem spillerne", () => {
   const result = calculateRoundScore({
     type: "rensol",
     activePlayerIds: players,
@@ -92,7 +92,7 @@ test("Ren Sol hjem mod ned giver ti point mellem spillerne", () => {
     ]
   });
 
-  assert.deepEqual(result, { a: 10, b: -10, c: 0, d: 0 });
+  assert.deepEqual(result, { a: 6, b: -6, c: 0, d: 0 });
 });
 
 test("bordmeldinger bruger samme modspillermodel med deres egen værdi", () => {

@@ -22,7 +22,7 @@ const TYPE_OFFSETS = {
 
 const SPECIAL_VALUES = {
   sol: 2,
-  rensol: 5,
+  rensol: 3,
   bordstik: 4,
   bordnul: 5
 };

@@ -15,6 +15,10 @@ h1 { margin: 0; font-size: 1.55rem; } h2 { margin: 0; font-size: 1.2rem; } h3 { 
 input, select { width: 100%; min-height: 44px; border: 1px solid #aebbb6; border-radius: 5px; padding: 8px 10px; background: #fff; }
 button { min-height: 44px; border: 1px solid #24624a; border-radius: 5px; padding: 8px 14px; background: #24624a; color: #fff; font-weight: 700; }
 button.secondary { background: #fff; color: #24624a; } button:disabled { opacity: .55; cursor: wait; }
+.button-link { display: inline-flex; align-items: center; min-height: 40px; border-radius: 5px; padding: 7px 12px; background: #24624a; color: #fff; font-weight: 700; text-decoration: none; }
+.game-list { display: grid; gap: 8px; margin-top: 12px; }
+.game-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 1px solid #e4e9e7; }
+.game-row small { color: #66716c; }
 .player-grid, .active-grid, .special-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .choice { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 10px; border: 1px solid #bcc8c3; border-radius: 5px; font-weight: 650; }
 .choice input { width: 20px; min-height: 20px; } .player-row { margin-top: 8px; } .player-row input { flex: 1; }
@@ -22,5 +26,11 @@ button.secondary { background: #fff; color: #24624a; } button:disabled { opacity
 .score-value { font-weight: 800; } .round { padding: 12px 0; border-bottom: 1px solid #e4e9e7; }
 .round-meta { justify-content: space-between; align-items: flex-start; } .round-meta small { color: #66716c; }
 .round-points { margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+.table-scroll { overflow-x: auto; border: 1px solid #d6ddda; border-radius: 5px; }
+table { width: 100%; min-width: 520px; border-collapse: collapse; text-align: right; }
+th, td { padding: 9px 10px; border-bottom: 1px solid #e4e9e7; white-space: nowrap; }
+thead th { position: sticky; top: 0; background: #edf4f1; font-weight: 800; }
+th:first-child { position: sticky; left: 0; text-align: left; background: #f7f9f8; }
+tbody tr:last-child th, tbody tr:last-child td { border-bottom: 0; }
 .help { font-size: .9rem; color: #5a6570; } .hidden { display: none !important; }
 @media (min-width: 680px) { .active-grid, .special-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }

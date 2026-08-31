@@ -54,3 +54,8 @@ export function createGameRepository(gameId) {
 export async function createGame(game) {
   await setDoc(doc(db, "games", game.id), game);
 }
+
+export async function listGames() {
+  const snapshots = await getDocs(query(collection(db, "games"), orderBy("updatedAt", "desc")));
+  return snapshots.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }));
+}

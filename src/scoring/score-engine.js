@@ -55,8 +55,8 @@ export function validateRound(round) {
   const active = new Set(round.activePlayerIds);
 
   if (Object.hasOwn(TYPE_OFFSETS, round.type)) {
-    if (!Number.isInteger(round.contractTricks) || round.contractTricks < 7 || round.contractTricks > 14) {
-      throw new Error("Meldte stik skal være et helt tal mellem 7 og 14");
+    if (!Number.isInteger(round.contractTricks) || round.contractTricks < 7 || round.contractTricks > 13) {
+      throw new Error("Meldte stik skal være et helt tal mellem 7 og 13");
     }
 
     if (!Number.isInteger(round.takenTricks) || round.takenTricks < 0 || round.takenTricks > 13) {

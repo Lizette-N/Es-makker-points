@@ -77,3 +77,7 @@ test("33. Ugyldigt: en runde skal have fire forskellige spillere", () => {
 test("34. Ugyldigt: en Sol-spiller skal være aktiv", () => {
   assert.throws(() => validateRound(special("sol", [["Ukendt", "home"]])), /aktive spillere/);
 });
+
+test("35. Ugyldigt: der må ikke meldes 14 stik", () => {
+  assert.throws(() => validateRound(ordinary("normal", 14, 13)), /mellem 7 og 13/);
+});

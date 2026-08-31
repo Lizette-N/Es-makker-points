@@ -27,6 +27,5 @@ test("nye spil starter med fire spillerfelter og kan få flere", async () => {
 
   assert.match(source, /INITIAL_PLAYER_FIELDS = 4/);
   assert.match(source, /Tilføj spiller/);
-  assert.doesNotMatch(source, /length: 7/);
   assert.match(source, /names\.length < 4/);
 });

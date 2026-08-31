@@ -34,6 +34,7 @@ test("selvpalle er et makkervalg og tagne stik stopper ved 13", async () => {
   assert.match(source, /partnerChoices.*Selvpalle/);
   assert.doesNotMatch(source, /name="selfPartner"/);
   assert.match(source, /Array\.from\(\{ length: 14 \}/);
+  assert.match(source, /contractChoices = Array\.from\(\{ length: 7 \}/);
 });
 
 test("Sol-resultater viser Ikke med over Hjem og Ned", async () => {

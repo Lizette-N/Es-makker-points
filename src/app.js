@@ -116,7 +116,7 @@ function renderRoundForm(round = null) {
   const selected = round?.activePlayerIds || activePlayers().map((player) => player.id);
   if (selected.length !== 4) { form.innerHTML = ""; return; }
   const playerChoices = selected.map((playerId) => ({ value: playerId, label: playerName(playerId) }));
-  const contractChoices = Array.from({ length: 8 }, (_, index) => ({ value: index + 7, label: String(index + 7) }));
+  const contractChoices = Array.from({ length: 7 }, (_, index) => ({ value: index + 7, label: String(index + 7) }));
   const normalTypeChoices = [{ value: "normal", label: "Normal" }, { value: "gode", label: "Gode" }, { value: "halv", label: "Halve" }, { value: "vip i 1.", label: "Vip 1" }, { value: "vip i 2.", label: "Vip 2" }, { value: "vip i 3.", label: "Vip 3" }];
   const specialTypeChoices = [{ value: "sol", label: "Sol" }, { value: "rensol", label: "Ren Sol" }, { value: "bordstik", label: "Bord + stik" }, { value: "bordnul", label: "Bord 0" }];
   const declarerId = round?.declarerId || selected[0];

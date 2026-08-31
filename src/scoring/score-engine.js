@@ -93,7 +93,7 @@ export function validateRound(round) {
 }
 
 function calculateOrdinaryValue(round) {
-  const contract = normalizeTricks(round.contractTricks);
+  const contract = round.contractTricks;
   const taken = normalizeTricks(round.takenTricks);
   const offset = TYPE_OFFSETS[round.type];
   const contractIndex = MATRIX.findIndex(([tricks]) => tricks === contract);

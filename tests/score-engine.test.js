@@ -17,7 +17,7 @@ test("normal meldinger fordeler den eksisterende beregnede værdi som nulsum", (
   assert.deepEqual(result, { a: 1, b: 1, c: -1, d: -1 });
 });
 
-test("13 stik beregnes som 14 stik", () => {
+test("13 meldte og 13 tagne bruger 13-værdien gange 14-resultatet", () => {
   const result = calculateRoundScore({
     type: "normal",
     activePlayerIds: players,
@@ -27,10 +27,10 @@ test("13 stik beregnes som 14 stik", () => {
     takenTricks: 13
   });
 
-  assert.equal(result.a, 64);
-  assert.equal(result.b, 64);
-  assert.equal(result.c, -64);
-  assert.equal(result.d, -64);
+  assert.equal(result.a, 32);
+  assert.equal(result.b, 32);
+  assert.equal(result.c, -32);
+  assert.equal(result.d, -32);
 });
 
 test("selvmakker fordeler tre gange værdien til melderen", () => {

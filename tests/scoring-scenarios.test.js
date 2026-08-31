@@ -31,7 +31,7 @@ const scenarios = [
   ["4. 10 normal, præcis 10 stik", ordinary("normal", 10, 10), { Anders: 2, Peter: 2, Mikkel: -2, Søren: -2 }],
   ["5. 10 normal, 13 stik tæller som 14", ordinary("normal", 10, 13), { Anders: 4, Peter: 4, Mikkel: -4, Søren: -4 }],
   ["6. 12 normal, præcis 12 stik", ordinary("normal", 12, 12), { Anders: 12, Peter: 12, Mikkel: -12, Søren: -12 }],
-  ["7. 13 normal, 13 stik tæller som 14", ordinary("normal", 13, 13), { Anders: 64, Peter: 64, Mikkel: -64, Søren: -64 }],
+  ["7. 13 normal, 13 stik giver 4 gange 8", ordinary("normal", 13, 13), { Anders: 32, Peter: 32, Mikkel: -32, Søren: -32 }],
   ["8. 9 normal, ét stik ned", ordinary("normal", 9, 8), { Anders: -1, Peter: -1, Mikkel: 1, Søren: 1 }],
   ["9. 9 normal, to stik ned", ordinary("normal", 9, 7), { Anders: -1, Peter: -1, Mikkel: 1, Søren: 1 }],
   ["10. 10 normal, to stik ned", ordinary("normal", 10, 8), { Anders: -2, Peter: -2, Mikkel: 2, Søren: 2 }],

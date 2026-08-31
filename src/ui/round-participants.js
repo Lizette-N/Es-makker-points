@@ -8,3 +8,7 @@ export function participantSelectionState(selectedCount) {
 export function defaultActivePlayerIds(players) {
   return players.length === 4 ? players.map((player) => player.id) : [];
 }
+
+export function needsParticipantSelection(players) {
+  return players.length > 4;
+}

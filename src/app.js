@@ -2,7 +2,7 @@ import { calculateRoundScore } from "./scoring/score-engine.js";
 import { buildScoreLedger } from "./domain/standings.js";
 import { eligiblePartnerIds } from "./ui/round-form.js";
 import { bindChoiceButtons, DEFAULT_CONTRACT_TRICKS, renderChoiceButtonList, renderChoiceButtons, setChoiceAvailability } from "./ui/button-group.js";
-import { defaultActivePlayerIds, participantSelectionState } from "./ui/round-participants.js";
+import { defaultActivePlayerIds, needsParticipantSelection, participantSelectionState } from "./ui/round-participants.js";
 
 const app = document.querySelector("#app");
 const params = new URLSearchParams(location.search);
@@ -87,7 +87,9 @@ async function createNewGame(event) {
 
 function renderGame() {
   const shareUrl = `${location.origin}${location.pathname}?game=${state.game.id}`;
-  app.innerHTML = `<div class="topbar"><div><h1>${escapeHtml(state.game.name)}</h1><div class="muted">${state.players.length} spiller${state.players.length === 1 ? "" : "e"}</div></div><div class="row"><button class="secondary" id="game-overview">Spiloversigt</button><button class="secondary" id="copy-link">Del link</button></div></div><div id="status"></div><section class="section"><div class="section-head"><h2>Ny runde</h2><span class="muted">Runde ${state.rounds.length + 1}</span></div><div class="participant-heading"><strong>1. Vælg rundens fire spillere</strong><span id="participant-count">0 af 4 valgt</span></div><div id="active-list" class="active-grid"></div><div id="round-entry" class="round-entry locked"><div id="round-lock" class="round-lock">Vælg fire spillere for at åbne meldingen</div><form id="round-form" class="form-grid" aria-disabled="true"></form></div></section><section class="section"><h2>Aktuel stilling</h2><ol id="standings" class="score-list"></ol><h3>Regnskabets udvikling</h3><div class="table-scroll"><table id="score-ledger"></table></div></section><section class="section"><div class="section-head"><h2>Historik</h2><span class="muted">${state.rounds.length} runder</span></div><div id="history"></div></section>`;
+  const requiresSelection = needsParticipantSelection(state.players);
+  const participantControls = requiresSelection ? `<div class="participant-heading"><strong>1. Vælg rundens fire spillere</strong><span id="participant-count">0 af 4 valgt</span></div><div id="active-list" class="active-grid"></div>` : `<div id="active-list" class="active-grid hidden"></div>`;
+  app.innerHTML = `<div class="topbar"><div><h1>${escapeHtml(state.game.name)}</h1><div class="muted">${state.players.length} spiller${state.players.length === 1 ? "" : "e"}</div></div><div class="row"><button class="secondary" id="game-overview">Spiloversigt</button><button class="secondary" id="copy-link">Del link</button></div></div><div id="status"></div><section class="section"><div class="section-head"><h2>Ny runde</h2><span class="muted">Runde ${state.rounds.length + 1}</span></div>${participantControls}<div id="round-entry" class="round-entry${requiresSelection ? " locked" : ""}"><div id="round-lock" class="round-lock">Vælg fire spillere for at åbne meldingen</div><form id="round-form" class="form-grid" aria-disabled="${requiresSelection}"></form></div></section><section class="section"><h2>Aktuel stilling</h2><ol id="standings" class="score-list"></ol><h3>Regnskabets udvikling</h3><div class="table-scroll"><table id="score-ledger"></table></div></section><section class="section"><div class="section-head"><h2>Historik</h2><span class="muted">${state.rounds.length} runder</span></div><div id="history"></div></section>`;
   document.querySelector("#game-overview").addEventListener("click", () => { location.href = location.pathname; });
   document.querySelector("#copy-link").addEventListener("click", async () => { await navigator.clipboard?.writeText(shareUrl); setStatus("Link kopieret.", "success"); });
   const activeList = document.querySelector("#active-list");
@@ -101,7 +103,8 @@ function renderGame() {
 function updateParticipantSelection() {
   const selectedCount = activePlayers().length;
   const selection = participantSelectionState(selectedCount);
-  document.querySelector("#participant-count").textContent = `${selectedCount} af 4 valgt`;
+  const count = document.querySelector("#participant-count");
+  if (count) count.textContent = `${selectedCount} af 4 valgt`;
   document.querySelectorAll("#active-list input").forEach((checkbox) => { checkbox.disabled = selection.disableUnchecked && !checkbox.checked; });
   document.querySelector("#round-entry").classList.toggle("locked", !selection.ready);
   document.querySelector("#round-form").setAttribute("aria-disabled", String(!selection.ready));

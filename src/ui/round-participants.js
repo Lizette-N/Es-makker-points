@@ -4,3 +4,7 @@ export function participantSelectionState(selectedCount) {
     disableUnchecked: selectedCount >= 4
   };
 }
+
+export function defaultActivePlayerIds(players) {
+  return players.length === 4 ? players.map((player) => player.id) : [];
+}

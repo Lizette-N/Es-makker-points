@@ -2,12 +2,13 @@ import { calculateRoundScore } from "./scoring/score-engine.js";
 import { buildScoreLedger } from "./domain/standings.js";
 import { eligiblePartnerIds } from "./ui/round-form.js";
 import { bindChoiceButtons, DEFAULT_CONTRACT_TRICKS, renderChoiceButtonList, renderChoiceButtons, setChoiceAvailability } from "./ui/button-group.js";
-import { participantSelectionState } from "./ui/round-participants.js";
+import { defaultActivePlayerIds, participantSelectionState } from "./ui/round-participants.js";
 
 const app = document.querySelector("#app");
 const params = new URLSearchParams(location.search);
 const gameId = params.get("game");
 const state = { game: null, players: [], rounds: [], editingRound: null };
+const INITIAL_PLAYER_FIELDS = 4;
 
 function id() {
   const bytes = new Uint8Array(16);
@@ -29,13 +30,17 @@ function activePlayers() { return state.players.filter((player) => document.quer
 function formatPoints(value) { return value > 0 ? `+${value}` : String(value); }
 
 function renderSetup() {
-  app.innerHTML = `<div class="topbar"><h1>Es-makker Whist</h1></div><section class="section"><h2>Tidligere spil</h2><div id="game-list" class="game-list"><p class="muted">Indlæser spil...</p></div></section><section class="section"><h2>Nyt spil</h2><p class="help">Opret et spil og del linket med de andre spillere.</p><form id="setup-form" class="form-grid"><label>Spillets navn<input name="name" required maxlength="80" placeholder="Sommerhus Whist 2026"></label><div id="setup-players"></div><button>Opret spil</button></form></section>`;
+  app.innerHTML = `<div class="topbar"><h1>Es-makker Whist</h1></div><section class="section"><h2>Tidligere spil</h2><div id="game-list" class="game-list"><p class="muted">Indlæser spil...</p></div></section><section class="section"><h2>Nyt spil</h2><p class="help">Opret et spil og del linket med de andre spillere.</p><form id="setup-form" class="form-grid"><label>Spillets navn<input name="name" required maxlength="80" placeholder="Sommerhus Whist 2026"></label><div id="setup-players"></div><button type="button" class="secondary" id="add-player">Tilføj spiller</button><button>Opret spil</button></form></section>`;
   const holder = document.querySelector("#setup-players");
-  for (let index = 0; index < 7; index += 1) {
-    holder.insertAdjacentHTML("beforeend", `<div class="player-row"><label>Spiller ${index + 1}<input name="player-${index}" maxlength="50" placeholder="Navn"></label></div>`);
-  }
+  for (let index = 0; index < INITIAL_PLAYER_FIELDS; index += 1) addSetupPlayerField(holder);
+  document.querySelector("#add-player").addEventListener("click", () => addSetupPlayerField(holder));
   document.querySelector("#setup-form").addEventListener("submit", createNewGame);
   loadGameList();
+}
+
+function addSetupPlayerField(holder) {
+  const index = holder.children.length;
+  holder.insertAdjacentHTML("beforeend", `<div class="player-row"><label>Spiller ${index + 1}<input name="player-${index}" maxlength="50" placeholder="Navn"></label></div>`);
 }
 
 async function loadGameList() {
@@ -66,8 +71,8 @@ async function repository() {
 async function createNewGame(event) {
   event.preventDefault();
   const form = new FormData(event.currentTarget);
-  const names = Array.from({ length: 7 }, (_, index) => String(form.get(`player-${index}`) || "").trim()).filter(Boolean);
-  if (!names.length) return setStatus("Tilføj mindst én spiller.", "error");
+  const names = [...event.currentTarget.querySelectorAll('#setup-players input')].map((input) => input.value.trim()).filter(Boolean);
+  if (names.length < 4) return setStatus("Tilføj mindst fire spillere.", "error");
   if (new Set(names.map((name) => name.toLocaleLowerCase("da-DK"))).size !== names.length) return setStatus("Spillernavne skal være forskellige.", "error");
   const game = { id: id(), name: String(form.get("name")).trim(), scoringVersion: "v1", createdAt: now(), updatedAt: now() };
   try {
@@ -87,8 +92,10 @@ function renderGame() {
   document.querySelector("#copy-link").addEventListener("click", async () => { await navigator.clipboard?.writeText(shareUrl); setStatus("Link kopieret.", "success"); });
   const activeList = document.querySelector("#active-list");
   state.players.forEach((player) => activeList.insertAdjacentHTML("beforeend", `<label class="choice"><input type="checkbox" id="active-${escapeHtml(player.id)}" value="${escapeHtml(player.id)}">${escapeHtml(player.name)}</label>`));
+  const defaults = new Set(defaultActivePlayerIds(state.players));
+  activeList.querySelectorAll("input").forEach((checkbox) => { checkbox.checked = defaults.has(checkbox.value); });
   activeList.addEventListener("change", updateParticipantSelection);
-  renderRoundForm(); renderStandings(); renderHistory();
+  updateParticipantSelection(); renderStandings(); renderHistory();
 }
 
 function updateParticipantSelection() {

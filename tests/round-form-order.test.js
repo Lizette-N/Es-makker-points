@@ -35,3 +35,10 @@ test("selvpalle er et makkervalg og tagne stik stopper ved 13", async () => {
   assert.doesNotMatch(source, /name="selfPartner"/);
   assert.match(source, /Array\.from\(\{ length: 14 \}/);
 });
+
+test("Sol-resultater viser Ikke med over Hjem og Ned", async () => {
+  const css = await readFile(new URL("../style.css", import.meta.url), "utf8");
+
+  assert.match(css, /\.special-grid \.choice-buttons[^}]*repeat\(2/);
+  assert.match(css, /\.special-grid \.choice-button:first-child[^}]*grid-column: 1 \/ -1/);
+});

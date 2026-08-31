@@ -52,10 +52,10 @@ const scenarios = [
   ["25. Fire Sol går hjem og udligner hinanden", special("sol", [["Anders", "home"], ["Peter", "home"], ["Mikkel", "home"], ["Søren", "home"]]), { Anders: 0, Peter: 0, Mikkel: 0, Søren: 0 }],
   ["26. Én Ren Sol går hjem", special("rensol", [["Anders", "home"]]), { Anders: 9, Peter: -3, Mikkel: -3, Søren: -3 }],
   ["27. To Ren Sol går hjem", special("rensol", [["Anders", "home"], ["Peter", "home"]]), { Anders: 6, Peter: 6, Mikkel: -6, Søren: -6 }],
-  ["28. Én Ren Sol hjem og én ned", special("rensol", [["Anders", "home"], ["Peter", "down"]]), { Anders: 6, Peter: -6, Mikkel: 0, Søren: 0 }],
+  ["28. Én Ren Sol hjem og én ned", special("rensol", [["Anders", "home"], ["Peter", "down"]]), { Anders: 12, Peter: -12, Mikkel: 0, Søren: 0 }],
   ["29. Tre Ren Sol går hjem", special("rensol", [["Anders", "home"], ["Peter", "home"], ["Mikkel", "home"]]), { Anders: 3, Peter: 3, Mikkel: 3, Søren: -9 }],
-  ["30. Bord med stik: én hjem og én ned", special("bordstik", [["Anders", "home"], ["Peter", "down"]]), { Anders: 8, Peter: -8, Mikkel: 0, Søren: 0 }],
-  ["31. Bord uden stik: én hjem og én ned", special("bordnul", [["Anders", "home"], ["Peter", "down"]]), { Anders: 10, Peter: -10, Mikkel: 0, Søren: 0 }]
+  ["30. Bord med stik: én hjem og én ned", special("bordstik", [["Anders", "home"], ["Peter", "down"]]), { Anders: 16, Peter: -16, Mikkel: 0, Søren: 0 }],
+  ["31. Bord uden stik: én hjem og én ned", special("bordnul", [["Anders", "home"], ["Peter", "down"]]), { Anders: 20, Peter: -20, Mikkel: 0, Søren: 0 }]
 ];
 
 for (const [name, round, expected] of scenarios) {

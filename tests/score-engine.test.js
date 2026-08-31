@@ -82,7 +82,7 @@ test("specialmeldinger genbruger Sol-modellen med deres egen værdi", () => {
   assert.deepEqual(result, { a: 6, b: 6, c: -6, d: -6 });
 });
 
-test("Ren Sol hjem mod ned giver seks point mellem spillerne", () => {
+test("Ren Sol hjem mod ned giver tolv point mellem spillerne", () => {
   const result = calculateRoundScore({
     type: "rensol",
     activePlayerIds: players,
@@ -92,7 +92,7 @@ test("Ren Sol hjem mod ned giver seks point mellem spillerne", () => {
     ]
   });
 
-  assert.deepEqual(result, { a: 6, b: -6, c: 0, d: 0 });
+  assert.deepEqual(result, { a: 12, b: -12, c: 0, d: 0 });
 });
 
 test("bordmeldinger bruger samme modspillermodel med deres egen værdi", () => {
@@ -113,8 +113,8 @@ test("bordmeldinger bruger samme modspillermodel med deres egen værdi", () => {
     ]
   });
 
-  assert.deepEqual(withTrick, { a: 8, b: -8, c: 0, d: 0 });
-  assert.deepEqual(withoutTrick, { a: 10, b: -10, c: 0, d: 0 });
+  assert.deepEqual(withTrick, { a: 16, b: -16, c: 0, d: 0 });
+  assert.deepEqual(withoutTrick, { a: 20, b: -20, c: 0, d: 0 });
 });
 
 test("14 tagne stik kan ikke registreres", () => {

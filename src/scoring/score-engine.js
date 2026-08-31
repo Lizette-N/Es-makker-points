@@ -122,17 +122,6 @@ function calculateSpecialChanges(round) {
   const changes = Object.fromEntries(round.activePlayerIds.map((id) => [id, 0]));
   const statuses = new Map(round.solPlayers.map(({ playerId, result }) => [playerId, result]));
 
-  if (round.type !== "sol") {
-    for (const { playerId, result } of round.solPlayers) {
-      const direction = result === "home" ? 1 : -1;
-      for (const opponentId of round.activePlayerIds.filter((id) => !statuses.has(id))) {
-        changes[playerId] += value * direction;
-        changes[opponentId] -= value * direction;
-      }
-    }
-    return changes;
-  }
-
   for (let firstIndex = 0; firstIndex < round.activePlayerIds.length; firstIndex += 1) {
     for (let secondIndex = firstIndex + 1; secondIndex < round.activePlayerIds.length; secondIndex += 1) {
       const firstId = round.activePlayerIds[firstIndex];

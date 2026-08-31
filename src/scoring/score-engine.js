@@ -22,7 +22,7 @@ const TYPE_OFFSETS = {
 
 const SPECIAL_VALUES = {
   sol: 2,
-  rensol: 3,
+  rensol: 5,
   bordstik: 4,
   bordnul: 5
 };
@@ -59,8 +59,8 @@ export function validateRound(round) {
       throw new Error("Meldte stik skal være et helt tal mellem 7 og 14");
     }
 
-    if (!Number.isInteger(round.takenTricks) || round.takenTricks < 0 || round.takenTricks > 14) {
-      throw new Error("Tagne stik skal være et helt tal mellem 0 og 14");
+    if (!Number.isInteger(round.takenTricks) || round.takenTricks < 0 || round.takenTricks > 13) {
+      throw new Error("Tagne stik skal være et helt tal mellem 0 og 13");
     }
 
     if (!active.has(round.declarerId)) {
@@ -121,6 +121,17 @@ function calculateSpecialChanges(round) {
   const value = SPECIAL_VALUES[round.type];
   const changes = Object.fromEntries(round.activePlayerIds.map((id) => [id, 0]));
   const statuses = new Map(round.solPlayers.map(({ playerId, result }) => [playerId, result]));
+
+  if (round.type !== "sol") {
+    for (const { playerId, result } of round.solPlayers) {
+      const direction = result === "home" ? 1 : -1;
+      for (const opponentId of round.activePlayerIds.filter((id) => !statuses.has(id))) {
+        changes[playerId] += value * direction;
+        changes[opponentId] -= value * direction;
+      }
+    }
+    return changes;
+  }
 
   for (let firstIndex = 0; firstIndex < round.activePlayerIds.length; firstIndex += 1) {
     for (let secondIndex = firstIndex + 1; secondIndex < round.activePlayerIds.length; secondIndex += 1) {

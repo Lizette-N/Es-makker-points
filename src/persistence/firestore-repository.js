@@ -7,7 +7,8 @@ import {
   orderBy,
   query,
   runTransaction,
-  setDoc
+  setDoc,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
 const config = globalThis.FIREBASE_CONFIG;
@@ -58,4 +59,23 @@ export async function createGame(game) {
 export async function listGames() {
   const snapshots = await getDocs(query(collection(db, "games"), orderBy("updatedAt", "desc")));
   return snapshots.docs.map((snapshot) => ({ id: snapshot.id, ...snapshot.data() }));
+}
+
+export async function deleteGame(gameId) {
+  const gameRef = doc(db, "games", gameId);
+  const snapshots = await Promise.all([
+    getDocs(collection(gameRef, "players")),
+    getDocs(collection(gameRef, "rounds"))
+  ]);
+  const references = snapshots.flatMap((snapshot) => snapshot.docs.map((entry) => entry.ref));
+
+  for (let index = 0; index < references.length; index += 450) {
+    const batch = writeBatch(db);
+    references.slice(index, index + 450).forEach((reference) => batch.delete(reference));
+    await batch.commit();
+  }
+
+  const batch = writeBatch(db);
+  batch.delete(gameRef);
+  await batch.commit();
 }

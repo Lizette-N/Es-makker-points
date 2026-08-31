@@ -1,7 +1,8 @@
 import { calculateRoundScore } from "./scoring/score-engine.js";
 import { buildScoreLedger } from "./domain/standings.js";
 import { eligiblePartnerIds } from "./ui/round-form.js";
-import { bindChoiceButtons, DEFAULT_CONTRACT_TRICKS, renderChoiceButtons, setChoiceAvailability } from "./ui/button-group.js";
+import { bindChoiceButtons, DEFAULT_CONTRACT_TRICKS, renderChoiceButtonList, renderChoiceButtons, setChoiceAvailability } from "./ui/button-group.js";
+import { participantSelectionState } from "./ui/round-participants.js";
 
 const app = document.querySelector("#app");
 const params = new URLSearchParams(location.search);
@@ -42,7 +43,16 @@ async function loadGameList() {
   try {
     const { listGames } = await import("./persistence/firestore-repository.js");
     const games = await listGames();
-    holder.innerHTML = games.map((game) => `<div class="game-row"><div><strong>${escapeHtml(game.name)}</strong><br><small>Sidst ændret ${new Date(game.updatedAt).toLocaleString("da-DK")}</small></div><a class="button-link" href="?game=${encodeURIComponent(game.id)}">Fortsæt</a></div>`).join("") || `<p class="muted">Der er ingen gemte spil endnu.</p>`;
+    holder.innerHTML = games.map((game) => `<div class="game-row"><div><strong>${escapeHtml(game.name)}</strong><br><small>Sidst ændret ${new Date(game.updatedAt).toLocaleString("da-DK")}</small></div><div class="game-actions"><button class="quiet-button delete-game" data-id="${escapeHtml(game.id)}" data-name="${escapeHtml(game.name)}">Slet</button><a class="button-link" href="?game=${encodeURIComponent(game.id)}">Fortsæt</a></div></div>`).join("") || `<p class="muted">Der er ingen gemte spil endnu.</p>`;
+    holder.querySelectorAll(".delete-game").forEach((button) => button.addEventListener("click", async () => {
+      if (!confirm(`Vil du slette \"${button.dataset.name}\" permanent?`)) return;
+      button.disabled = true;
+      try {
+        const { deleteGame } = await import("./persistence/firestore-repository.js");
+        await deleteGame(button.dataset.id);
+        await loadGameList();
+      } catch (error) { setStatus(error.message, "error"); button.disabled = false; }
+    }));
   } catch (error) {
     holder.innerHTML = `<p class="error">${escapeHtml(error.message)}</p>`;
   }
@@ -72,35 +82,57 @@ async function createNewGame(event) {
 
 function renderGame() {
   const shareUrl = `${location.origin}${location.pathname}?game=${state.game.id}`;
-  app.innerHTML = `<div class="topbar"><div><h1>${escapeHtml(state.game.name)}</h1><div class="muted">${state.players.length} spiller${state.players.length === 1 ? "" : "e"}</div></div><div class="row"><button class="secondary" id="game-overview">Spiloversigt</button><button class="secondary" id="copy-link">Del link</button></div></div><div id="status"></div><section class="section"><div class="section-head"><h2>Ny runde</h2><span class="muted">Runde ${state.rounds.length + 1}</span></div><p class="help">Vælg præcis fire aktive spillere.</p><div id="active-list" class="active-grid"></div><form id="round-form" class="form-grid"></form></section><section class="section"><h2>Aktuel stilling</h2><ol id="standings" class="score-list"></ol><h3>Regnskabets udvikling</h3><div class="table-scroll"><table id="score-ledger"></table></div></section><section class="section"><div class="section-head"><h2>Historik</h2><span class="muted">${state.rounds.length} runder</span></div><div id="history"></div></section>`;
+  app.innerHTML = `<div class="topbar"><div><h1>${escapeHtml(state.game.name)}</h1><div class="muted">${state.players.length} spiller${state.players.length === 1 ? "" : "e"}</div></div><div class="row"><button class="secondary" id="game-overview">Spiloversigt</button><button class="secondary" id="copy-link">Del link</button></div></div><div id="status"></div><section class="section"><div class="section-head"><h2>Ny runde</h2><span class="muted">Runde ${state.rounds.length + 1}</span></div><div class="participant-heading"><strong>1. Vælg rundens fire spillere</strong><span id="participant-count">0 af 4 valgt</span></div><div id="active-list" class="active-grid"></div><div id="round-entry" class="round-entry locked"><div id="round-lock" class="round-lock">Vælg fire spillere for at åbne meldingen</div><form id="round-form" class="form-grid" aria-disabled="true"></form></div></section><section class="section"><h2>Aktuel stilling</h2><ol id="standings" class="score-list"></ol><h3>Regnskabets udvikling</h3><div class="table-scroll"><table id="score-ledger"></table></div></section><section class="section"><div class="section-head"><h2>Historik</h2><span class="muted">${state.rounds.length} runder</span></div><div id="history"></div></section>`;
   document.querySelector("#game-overview").addEventListener("click", () => { location.href = location.pathname; });
   document.querySelector("#copy-link").addEventListener("click", async () => { await navigator.clipboard?.writeText(shareUrl); setStatus("Link kopieret.", "success"); });
   const activeList = document.querySelector("#active-list");
   state.players.forEach((player) => activeList.insertAdjacentHTML("beforeend", `<label class="choice"><input type="checkbox" id="active-${escapeHtml(player.id)}" value="${escapeHtml(player.id)}">${escapeHtml(player.name)}</label>`));
-  state.players.slice(0, 4).forEach((player) => { const checkbox = document.querySelector(`#active-${player.id}`); if (checkbox) checkbox.checked = true; });
-  activeList.addEventListener("change", renderRoundForm);
+  activeList.addEventListener("change", updateParticipantSelection);
   renderRoundForm(); renderStandings(); renderHistory();
+}
+
+function updateParticipantSelection() {
+  const selectedCount = activePlayers().length;
+  const selection = participantSelectionState(selectedCount);
+  document.querySelector("#participant-count").textContent = `${selectedCount} af 4 valgt`;
+  document.querySelectorAll("#active-list input").forEach((checkbox) => { checkbox.disabled = selection.disableUnchecked && !checkbox.checked; });
+  document.querySelector("#round-entry").classList.toggle("locked", !selection.ready);
+  document.querySelector("#round-form").setAttribute("aria-disabled", String(!selection.ready));
+  renderRoundForm();
 }
 
 function renderRoundForm(round = null) {
   const form = document.querySelector("#round-form"); if (!form) return;
   const selected = round?.activePlayerIds || activePlayers().map((player) => player.id);
-  if (selected.length !== 4) { form.innerHTML = `<p class="help">Vælg fire aktive spillere for at fortsætte.</p>`; return; }
+  if (selected.length !== 4) { form.innerHTML = ""; return; }
   const playerChoices = selected.map((playerId) => ({ value: playerId, label: playerName(playerId) }));
   const contractChoices = Array.from({ length: 8 }, (_, index) => ({ value: index + 7, label: String(index + 7) }));
-  const typeChoices = [{ value: "normal", label: "Normal" }, { value: "gode", label: "Gode" }, { value: "halv", label: "Halve" }, { value: "vip i 1.", label: "Vip 1" }, { value: "vip i 2.", label: "Vip 2" }, { value: "vip i 3.", label: "Vip 3" }, { value: "sol", label: "Sol" }, { value: "rensol", label: "Ren Sol" }, { value: "bordstik", label: "Bord + stik" }, { value: "bordnul", label: "Bord 0" }];
+  const normalTypeChoices = [{ value: "normal", label: "Normal" }, { value: "gode", label: "Gode" }, { value: "halv", label: "Halve" }, { value: "vip i 1.", label: "Vip 1" }, { value: "vip i 2.", label: "Vip 2" }, { value: "vip i 3.", label: "Vip 3" }];
+  const specialTypeChoices = [{ value: "sol", label: "Sol" }, { value: "rensol", label: "Ren Sol" }, { value: "bordstik", label: "Bord + stik" }, { value: "bordnul", label: "Bord 0" }];
   const declarerId = round?.declarerId || selected[0];
-  const partnerId = round?.partnerId || selected.find((playerId) => playerId !== declarerId);
-  form.innerHTML = `<div id="contract-field" class="field-group"><span class="field-label">Meldte stik</span>${renderChoiceButtons("contractTricks", contractChoices, round?.contractTricks ?? DEFAULT_CONTRACT_TRICKS)}</div><div class="field-group"><span class="field-label">Spiltype</span>${renderChoiceButtons("type", typeChoices, round?.type || "normal")}</div><div id="normal-fields" class="form-grid"><div class="field-group"><span class="field-label">Spilfører</span>${renderChoiceButtons("declarerId", playerChoices, declarerId)}</div><div class="field-group"><span class="field-label">Makker</span>${renderChoiceButtons("partnerId", playerChoices, partnerId)}</div><label>Tagne stik<select name="takenTricks">${Array.from({ length: 15 }, (_, i) => `<option>${i}</option>`).join("")}</select></label><label class="choice"><input type="checkbox" name="selfPartner">Selvpalle</label></div><div id="special-fields" class="special-grid hidden"></div><button id="save-round">${round ? "Gem ændring" : "Gem runde"}</button>`;
+  const partnerId = round?.selfPartner ? "self" : round?.partnerId || selected.find((playerId) => playerId !== declarerId);
+  const partnerChoices = [...playerChoices, { value: "self", label: "Selvpalle" }];
+  const selectedType = round?.type || "normal";
+  form.innerHTML = `<div id="contract-field" class="field-group"><span class="field-label">Meldte stik</span>${renderChoiceButtons("contractTricks", contractChoices, round?.contractTricks ?? DEFAULT_CONTRACT_TRICKS)}</div><div class="field-group"><span class="field-label">Spiltype</span>${renderChoiceButtons("type", normalTypeChoices, selectedType)}</div><div id="normal-fields" class="form-grid"><div class="field-group"><span class="field-label">Spilfører</span>${renderChoiceButtons("declarerId", playerChoices, declarerId)}</div><div class="field-group"><span class="field-label">Makker eller Selvpalle</span>${renderChoiceButtons("partnerId", partnerChoices, partnerId)}</div><label>Tagne stik<select name="takenTricks">${Array.from({ length: 14 }, (_, i) => `<option>${i}</option>`).join("")}</select></label></div><div class="type-special-block"><span class="field-label">Sol og bordmeldinger</span>${renderChoiceButtonList(specialTypeChoices, selectedType, "choice-buttons type-special-choices")}</div><div id="special-fields" class="special-grid hidden"></div><button id="save-round">${round ? "Gem ændring" : "Gem runde"}</button>`;
   if (round?.takenTricks !== undefined) form.elements.takenTricks.value = round.takenTricks;
-  form.elements.selfPartner.checked = Boolean(round?.selfPartner);
-  bindChoiceButtons(form, "type", () => toggleRoundFields(form, round));
+  bindChoiceButtons(form, "type", () => { syncSpecialTypeButtons(form); toggleRoundFields(form, round); });
+  form.querySelector(".type-special-choices").addEventListener("click", (event) => {
+    const button = event.target.closest(".choice-button"); if (!button) return;
+    form.elements.type.value = button.dataset.value;
+    form.querySelectorAll('[data-choice-group="type"] .choice-button').forEach((entry) => entry.setAttribute("aria-pressed", "false"));
+    syncSpecialTypeButtons(form); toggleRoundFields(form, round);
+  });
   bindChoiceButtons(form, "declarerId", () => syncPartnerControls(form, selected));
   bindChoiceButtons(form, "contractTricks");
   bindChoiceButtons(form, "partnerId");
-  form.elements.selfPartner.addEventListener("change", () => syncPartnerControls(form, selected));
   syncPartnerControls(form, selected); toggleRoundFields(form, round);
   form.onsubmit = (event) => saveRound(event, round);
+}
+
+function syncSpecialTypeButtons(form) {
+  form.querySelectorAll(".type-special-choices .choice-button").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.value === form.elements.type.value));
+  });
 }
 
 function toggleRoundFields(form, round) {
@@ -116,10 +148,9 @@ function toggleRoundFields(form, round) {
 }
 
 function syncPartnerControls(form, selected) {
-  const partner = form.elements.partnerId;
-  const selfPartner = form.elements.selfPartner.checked;
-  const eligible = new Set(eligiblePartnerIds(selected, form.elements.declarerId.value, selfPartner));
-  setChoiceAvailability(form, "partnerId", eligible, selfPartner);
+  const eligible = new Set(eligiblePartnerIds(selected, form.elements.declarerId.value));
+  eligible.add("self");
+  setChoiceAvailability(form, "partnerId", eligible);
 }
 
 async function saveRound(event, prior) {
@@ -127,7 +158,10 @@ async function saveRound(event, prior) {
   try {
     const selected = prior?.activePlayerIds || activePlayers().map((player) => player.id);
     const type = form.elements.type.value; const round = { id: prior?.id || id(), roundNumber: prior?.roundNumber || state.rounds.length + 1, playedAt: prior?.playedAt || now(), type, activePlayerIds: selected, updatedAt: now(), createdAt: prior?.createdAt || now(), scoringVersion: state.game.scoringVersion };
-    if (type === "normal" || type.startsWith("gode") || type === "halv" || type.startsWith("vip")) Object.assign(round, { declarerId: form.elements.declarerId.value, partnerId: form.elements.selfPartner.checked ? null : form.elements.partnerId.value, selfPartner: form.elements.selfPartner.checked, contractTricks: Number(form.elements.contractTricks.value), takenTricks: Number(form.elements.takenTricks.value) });
+    if (type === "normal" || type.startsWith("gode") || type === "halv" || type.startsWith("vip")) {
+      const selfPartner = form.elements.partnerId.value === "self";
+      Object.assign(round, { declarerId: form.elements.declarerId.value, partnerId: selfPartner ? null : form.elements.partnerId.value, selfPartner, contractTricks: Number(form.elements.contractTricks.value), takenTricks: Number(form.elements.takenTricks.value) });
+    }
     else round.solPlayers = selected.map((playerId) => ({ playerId, result: form.elements[`special-${playerId}`].value })).filter((entry) => entry.result !== "off");
     round.scoreChanges = calculateRoundScore(round);
     const repo = await repository(); await repo.saveRound(round, prior?.updatedAt); await repo.saveGame({ updatedAt: now() });
@@ -152,7 +186,7 @@ function roundSummary(round) {
 function renderHistory() {
   const holder = document.querySelector("#history");
   holder.innerHTML = state.rounds.map((round) => `<article class="round"><div class="round-meta"><div><strong>Runde ${round.roundNumber}: ${escapeHtml(round.type)}</strong><br><span>${escapeHtml(roundSummary(round))}</span><br><small>${new Date(round.playedAt).toLocaleString("da-DK")}</small></div><button class="secondary edit-round" data-id="${escapeHtml(round.id)}">Rediger</button></div><div class="round-points">${Object.entries(round.scoreChanges || {}).map(([playerId, value]) => `<span>${escapeHtml(playerName(playerId))}: <strong>${formatPoints(value)}</strong></span>`).join("")}</div></article>`).join("") || `<p class="muted">Ingen runder endnu.</p>`;
-  holder.querySelectorAll(".edit-round").forEach((button) => button.addEventListener("click", () => { const round = state.rounds.find((entry) => entry.id === button.dataset.id); state.editingRound = round; state.players.forEach((player) => { const checkbox = document.querySelector(`#active-${player.id}`); if (checkbox) checkbox.checked = round.activePlayerIds.includes(player.id); }); renderRoundForm(round); document.querySelector("#round-form")?.scrollIntoView({ behavior: "smooth" }); }));
+  holder.querySelectorAll(".edit-round").forEach((button) => button.addEventListener("click", () => { const round = state.rounds.find((entry) => entry.id === button.dataset.id); state.editingRound = round; state.players.forEach((player) => { const checkbox = document.querySelector(`#active-${player.id}`); if (checkbox) checkbox.checked = round.activePlayerIds.includes(player.id); }); updateParticipantSelection(); renderRoundForm(round); document.querySelector("#round-form")?.scrollIntoView({ behavior: "smooth" }); }));
 }
 
 async function loadGame() {

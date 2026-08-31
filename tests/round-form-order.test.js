@@ -21,3 +21,17 @@ test("gemning deaktiverer gem-knappen og ikke en valgknap", async () => {
 
   assert.match(source, /form\.querySelector\("#save-round"\)/);
 });
+
+test("specialmeldinger står i deres egen række", async () => {
+  const source = await readFile(new URL("../src/app.js", import.meta.url), "utf8");
+
+  assert.match(source, /type-special-choices/);
+});
+
+test("selvpalle er et makkervalg og tagne stik stopper ved 13", async () => {
+  const source = await readFile(new URL("../src/app.js", import.meta.url), "utf8");
+
+  assert.match(source, /partnerChoices.*Selvpalle/);
+  assert.doesNotMatch(source, /name="selfPartner"/);
+  assert.match(source, /Array\.from\(\{ length: 14 \}/);
+});

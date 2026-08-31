@@ -6,10 +6,15 @@ function escapeAttribute(value) {
 
 export function renderChoiceButtons(name, choices, selectedValue) {
   const selected = String(selectedValue);
-  return `<div class="button-group" data-choice-group="${escapeAttribute(name)}"><input type="hidden" name="${escapeAttribute(name)}" value="${escapeAttribute(selected)}"><div class="choice-buttons">${choices.map(({ value, label }) => {
+  return `<div class="button-group" data-choice-group="${escapeAttribute(name)}"><input type="hidden" name="${escapeAttribute(name)}" value="${escapeAttribute(selected)}">${renderChoiceButtonList(choices, selected)}</div>`;
+}
+
+export function renderChoiceButtonList(choices, selectedValue, className = "choice-buttons") {
+  const selected = String(selectedValue);
+  return `<div class="${escapeAttribute(className)}">${choices.map(({ value, label }) => {
     const active = String(value) === selected;
     return `<button type="button" class="choice-button" data-value="${escapeAttribute(value)}" aria-pressed="${active}">${escapeAttribute(label)}</button>`;
-  }).join("")}</div></div>`;
+  }).join("")}</div>`;
 }
 
 export function setChoiceValue(root, name, value) {

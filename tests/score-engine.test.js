@@ -79,7 +79,53 @@ test("specialmeldinger genbruger Sol-modellen med deres egen værdi", () => {
     ]
   });
 
-  assert.deepEqual(result, { a: 6, b: 6, c: -6, d: -6 });
+  assert.deepEqual(result, { a: 10, b: 10, c: -10, d: -10 });
+});
+
+test("Ren Sol hjem mod ned giver ti point mellem spillerne", () => {
+  const result = calculateRoundScore({
+    type: "rensol",
+    activePlayerIds: players,
+    solPlayers: [
+      { playerId: "a", result: "home" },
+      { playerId: "b", result: "down" }
+    ]
+  });
+
+  assert.deepEqual(result, { a: 10, b: -10, c: 0, d: 0 });
+});
+
+test("bordmeldinger bruger samme modspillermodel med deres egen værdi", () => {
+  const withTrick = calculateRoundScore({
+    type: "bordstik",
+    activePlayerIds: players,
+    solPlayers: [
+      { playerId: "a", result: "home" },
+      { playerId: "b", result: "down" }
+    ]
+  });
+  const withoutTrick = calculateRoundScore({
+    type: "bordnul",
+    activePlayerIds: players,
+    solPlayers: [
+      { playerId: "a", result: "home" },
+      { playerId: "b", result: "down" }
+    ]
+  });
+
+  assert.deepEqual(withTrick, { a: 8, b: -8, c: 0, d: 0 });
+  assert.deepEqual(withoutTrick, { a: 10, b: -10, c: 0, d: 0 });
+});
+
+test("14 tagne stik kan ikke registreres", () => {
+  assert.throws(() => validateRound({
+    type: "normal",
+    activePlayerIds: players,
+    declarerId: "a",
+    partnerId: "b",
+    contractTricks: 9,
+    takenTricks: 14
+  }), /mellem 0 og 13/);
 });
 
 test("ugyldig runde afvises før beregning", () => {

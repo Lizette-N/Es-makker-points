@@ -1,6 +1,7 @@
 import { calculateRoundScore } from "./scoring/score-engine.js";
 import { buildScoreLedger } from "./domain/standings.js";
 import { eligiblePartnerIds } from "./ui/round-form.js";
+import { bindChoiceButtons, DEFAULT_CONTRACT_TRICKS, renderChoiceButtons, setChoiceAvailability } from "./ui/button-group.js";
 
 const app = document.querySelector("#app");
 const params = new URLSearchParams(location.search);
@@ -85,13 +86,18 @@ function renderRoundForm(round = null) {
   const form = document.querySelector("#round-form"); if (!form) return;
   const selected = round?.activePlayerIds || activePlayers().map((player) => player.id);
   if (selected.length !== 4) { form.innerHTML = `<p class="help">Vælg fire aktive spillere for at fortsætte.</p>`; return; }
-  const options = selected.map((playerId) => `<option value="${escapeHtml(playerId)}">${escapeHtml(playerName(playerId))}</option>`).join("");
-  form.innerHTML = `<label id="contract-field">Meldte stik<select name="contractTricks">${Array.from({ length: 8 }, (_, i) => `<option>${i + 7}</option>`).join("")}</select></label><label>Spiltype<select name="type"><option value="normal">Normal</option><option value="gode">Gode</option><option value="halv">Halve</option><option value="vip i 1.">Vip i 1.</option><option value="vip i 2.">Vip i 2.</option><option value="vip i 3.">Vip i 3.</option><option value="sol">Sol</option><option value="rensol">Ren Sol</option><option value="bordstik">På bordet med ét stik</option><option value="bordnul">På bordet uden stik</option></select></label><div id="normal-fields" class="form-grid two"><label>Spilfører<select name="declarerId">${options}</select></label><label>Makker<select name="partnerId">${options}</select></label><label>Tagne stik<select name="takenTricks">${Array.from({ length: 15 }, (_, i) => `<option>${i}</option>`).join("")}</select></label><label class="choice"><input type="checkbox" name="selfPartner">Selvmakker</label></div><div id="special-fields" class="special-grid hidden"></div><button id="save-round">${round ? "Gem ændring" : "Gem runde"}</button>`;
-  const type = form.elements.type;
-  type.value = round?.type || "normal";
-  if (round) { for (const field of ["declarerId", "partnerId", "contractTricks", "takenTricks"]) if (round[field] !== undefined) form.elements[field].value = round[field]; form.elements.selfPartner.checked = Boolean(round.selfPartner); }
-  type.addEventListener("change", () => toggleRoundFields(form));
-  form.elements.declarerId.addEventListener("change", () => syncPartnerControls(form, selected));
+  const playerChoices = selected.map((playerId) => ({ value: playerId, label: playerName(playerId) }));
+  const contractChoices = Array.from({ length: 8 }, (_, index) => ({ value: index + 7, label: String(index + 7) }));
+  const typeChoices = [{ value: "normal", label: "Normal" }, { value: "gode", label: "Gode" }, { value: "halv", label: "Halve" }, { value: "vip i 1.", label: "Vip 1" }, { value: "vip i 2.", label: "Vip 2" }, { value: "vip i 3.", label: "Vip 3" }, { value: "sol", label: "Sol" }, { value: "rensol", label: "Ren Sol" }, { value: "bordstik", label: "Bord + stik" }, { value: "bordnul", label: "Bord 0" }];
+  const declarerId = round?.declarerId || selected[0];
+  const partnerId = round?.partnerId || selected.find((playerId) => playerId !== declarerId);
+  form.innerHTML = `<div id="contract-field" class="field-group"><span class="field-label">Meldte stik</span>${renderChoiceButtons("contractTricks", contractChoices, round?.contractTricks ?? DEFAULT_CONTRACT_TRICKS)}</div><div class="field-group"><span class="field-label">Spiltype</span>${renderChoiceButtons("type", typeChoices, round?.type || "normal")}</div><div id="normal-fields" class="form-grid"><div class="field-group"><span class="field-label">Spilfører</span>${renderChoiceButtons("declarerId", playerChoices, declarerId)}</div><div class="field-group"><span class="field-label">Makker</span>${renderChoiceButtons("partnerId", playerChoices, partnerId)}</div><label>Tagne stik<select name="takenTricks">${Array.from({ length: 15 }, (_, i) => `<option>${i}</option>`).join("")}</select></label><label class="choice"><input type="checkbox" name="selfPartner">Selvpalle</label></div><div id="special-fields" class="special-grid hidden"></div><button id="save-round">${round ? "Gem ændring" : "Gem runde"}</button>`;
+  if (round?.takenTricks !== undefined) form.elements.takenTricks.value = round.takenTricks;
+  form.elements.selfPartner.checked = Boolean(round?.selfPartner);
+  bindChoiceButtons(form, "type", () => toggleRoundFields(form, round));
+  bindChoiceButtons(form, "declarerId", () => syncPartnerControls(form, selected));
+  bindChoiceButtons(form, "contractTricks");
+  bindChoiceButtons(form, "partnerId");
   form.elements.selfPartner.addEventListener("change", () => syncPartnerControls(form, selected));
   syncPartnerControls(form, selected); toggleRoundFields(form, round);
   form.onsubmit = (event) => saveRound(event, round);
@@ -102,27 +108,22 @@ function toggleRoundFields(form, round) {
   form.querySelector("#contract-field").classList.toggle("hidden", special);
   form.querySelector("#normal-fields").classList.toggle("hidden", special);
   const holder = form.querySelector("#special-fields"); holder.classList.toggle("hidden", !special);
-  if (special) holder.innerHTML = activePlayers().map((player) => { const prior = round?.solPlayers?.find((entry) => entry.playerId === player.id)?.result || "off"; return `<label>${escapeHtml(player.name)}<select name="special-${escapeHtml(player.id)}"><option value="off" ${prior === "off" ? "selected" : ""}>Ikke med</option><option value="home" ${prior === "home" ? "selected" : ""}>Hjem</option><option value="down" ${prior === "down" ? "selected" : ""}>Ned</option></select></label>`; }).join("");
+  if (special) {
+    const statusChoices = [{ value: "off", label: "Ikke med" }, { value: "home", label: "Hjem" }, { value: "down", label: "Ned" }];
+    holder.innerHTML = activePlayers().map((player) => { const prior = round?.solPlayers?.find((entry) => entry.playerId === player.id)?.result || "off"; return `<div class="field-group"><span class="field-label">${escapeHtml(player.name)}</span>${renderChoiceButtons(`special-${player.id}`, statusChoices, prior)}</div>`; }).join("");
+    activePlayers().forEach((player) => bindChoiceButtons(form, `special-${player.id}`));
+  }
 }
 
 function syncPartnerControls(form, selected) {
   const partner = form.elements.partnerId;
   const selfPartner = form.elements.selfPartner.checked;
   const eligible = new Set(eligiblePartnerIds(selected, form.elements.declarerId.value, selfPartner));
-  partner.disabled = selfPartner;
-
-  for (const option of partner.options) {
-    option.disabled = !eligible.has(option.value);
-    option.hidden = !eligible.has(option.value);
-  }
-
-  if (!selfPartner && !eligible.has(partner.value)) {
-    partner.value = eligible.values().next().value;
-  }
+  setChoiceAvailability(form, "partnerId", eligible, selfPartner);
 }
 
 async function saveRound(event, prior) {
-  event.preventDefault(); const form = event.currentTarget; const button = form.querySelector("button"); button.disabled = true; setStatus("Gemmer...");
+  event.preventDefault(); const form = event.currentTarget; const button = form.querySelector("#save-round"); button.disabled = true; setStatus("Gemmer...");
   try {
     const selected = prior?.activePlayerIds || activePlayers().map((player) => player.id);
     const type = form.elements.type.value; const round = { id: prior?.id || id(), roundNumber: prior?.roundNumber || state.rounds.length + 1, playedAt: prior?.playedAt || now(), type, activePlayerIds: selected, updatedAt: now(), createdAt: prior?.createdAt || now(), scoringVersion: state.game.scoringVersion };
@@ -144,7 +145,7 @@ function roundSummary(round) {
   if (round.solPlayers) {
     return round.solPlayers.map(({ playerId, result }) => `${playerName(playerId)}: ${result === "home" ? "hjem" : "ned"}`).join(" · ");
   }
-  const partner = round.selfPartner ? "selvmakker" : `makker ${playerName(round.partnerId)}`;
+  const partner = round.selfPartner ? "selvpalle" : `makker ${playerName(round.partnerId)}`;
   return `${playerName(round.declarerId)} meldte ${round.contractTricks} ${round.type}, ${partner}, fik ${round.takenTricks} stik`;
 }
 

@@ -8,3 +8,16 @@ test("meldte stik vises før meldingstype i rundeformularen", async () => {
 
   assert.ok(formMarkup.indexOf("Meldte stik") < formMarkup.indexOf("Spiltype"));
 });
+
+test("brugerfladen kalder rollen selvpalle", async () => {
+  const source = await readFile(new URL("../src/app.js", import.meta.url), "utf8");
+
+  assert.match(source, /Selvpalle/);
+  assert.doesNotMatch(source, /[Ss]elvmakker/);
+});
+
+test("gemning deaktiverer gem-knappen og ikke en valgknap", async () => {
+  const source = await readFile(new URL("../src/app.js", import.meta.url), "utf8");
+
+  assert.match(source, /form\.querySelector\("#save-round"\)/);
+});

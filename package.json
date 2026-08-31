@@ -1,0 +1,9 @@
+{
+  "name": "es-makker-points",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "test:watch": "node --test --watch"
+  }
+}

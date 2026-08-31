@@ -1,117 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="da">
 <head>
-    <meta charset="UTF-8">
-    <title>Wist pointberegner</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Es-makker Whist</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-<h1>Wist pointberegner</h1>
-
-<label for="contract">Meldte stik :</label>
-<select id="contract">
-    <option value="">Vælg...</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
-    <option value="13">13</option>
-    <option value="14">14</option>
-</select>
-<br>
-
-<label for="type">Meldingstype:</label>
-<select id="type">
-    <option value="normal">Normal</option>
-    <option value="gode">Gode</option>
-    <option value="halv">Halve</option>
-    <option value="vip i 1.">Vip i 1.</option>
-    <option value="vip i 2.">Vip i 2.</option>
-    <option value="vip i 3.">Vip i 3.</option>
-</select>
-<br>
-
-
-<label>
-    <input type="checkbox" id="selvpalleCheck" onchange="toggleSelvpalle()">
-    Selvpalle
-</label>
-<label for="taken">Stik taget af melder:</label>
-<select id="taken">
-    <option value="">Vælg...</option>
-    <option value="0">0</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
-    <option value="13">13</option>
-    <option value="14">14</option>
-</select>
-<br>
-
-<button onclick="handleRound()">Beregn point</button>
-<p id="specialDisplay - Virker ikke endnu!"></p>
-
-<div class="special-box">
-    <h3>Special sol / ren sol / på bordet</h3>
-
-    <label for="specialType">Special-type:</label>
-    <select id="specialType">
-        <option value="none">Ingen special</option>
-        <option value="sol">Sol</option>
-        <option value="rensol">Ren sol</option>
-        <option value="bordstik">På bordet (med stik)</option>
-        <option value="bordnul">På bordet (uden stik)</option>
-    </select>
-    <br>
-
-    <p>Hvem er med, og vinder/taber de?</p>
-
-    <label for="p1status">Melder:</label>
-    <select id="p1status">
-        <option value="off">Ikke med</option>
-        <option value="win">Med og vinder</option>
-        <option value="lose">Med og taber</option>
-    </select>
-    <br>
-
-    <label for="p2status">Spiller 2:</label>
-    <select id="p2status">
-        <option value="off">Ikke med</option>
-        <option value="win">Med og vinder</option>
-        <option value="lose">Med og taber</option>
-    </select>
-    <br>
-
-    <label for="p3status">Spiller 3:</label>
-    <select id="p3status">
-        <option value="off">Ikke med</option>
-        <option value="win">Med og vinder</option>
-        <option value="lose">Med og taber</option>
-    </select>
-    <br>
-
-    <label for="p4status">Spiller 4:</label>
-    <select id="p4status">
-        <option value="off">Ikke med</option>
-        <option value="win">Med og vinder</option>
-        <option value="lose">Med og taber</option>
-    </select>
-    <br>
-</div>
-<p id="result"></p>
-
-<script src="script.js"></script>
+  <main id="app" class="app-shell"><p class="status" id="status">Indlæser...</p></main>
+  <script src="firebase-config.js"></script>
+  <script type="module" src="src/app.js"></script>
 </body>
 </html>

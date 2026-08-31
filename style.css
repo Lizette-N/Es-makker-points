@@ -1,91 +1,26 @@
-body {
-    font-family: Arial, sans-serif;
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 10px;
-    text-align: center;   /* VIGTIG: centrer alt indhold vandret */
-}
-
-label {
-    display: inline-block;
-    width: 200px;
-    margin-bottom: 10px;
-    text-align: right;
-}
-
-select {
-    margin-bottom: 15px;
-}
-
-h3 {
-    margin-top: 25px;
-    margin-bottom: 10px;
-}
-
-button {
-    margin: 5px;
-    padding: 8px 12px;
-}
-
-#specialDisplay {
-    margin: 15px 0;
-}
-
-#result {
-    margin-top: 20px;
-    font-weight: bold;
-}
-body {
-    font-family: Arial, sans-serif;
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 10px;
-    text-align: center;
-}
-
-label {
-    display: inline-block;
-    margin-top: 6px;
-    margin-bottom: 2px;
-}
-
-select {
-    margin-bottom: 6px;
-}
-
-/* Den lille side-menu-boks til specialmeldinger */
-.special-box {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #f9f9f9;
-
-    font-size: 12px;      /* lidt mindre skrift */
-    text-align: left;     /* labels og select venstrestillet inde i boksen */
-}
-
-.special-box {
-    display: block;      /* <-- tvinger boksen til egen linje */
-    width: 100%;         /* <-- gør at næste element ryger under */
-    margin-top: 10px;
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #f9f9f9;
-
-    font-size: 12px;
-    text-align: left;
-}
-
-.special-box h3 {
-    margin-top: 0;
-    margin-bottom: 6px;
-    font-size: 13px;
-}
-
-.special-box p {
-    margin: 2px 0 6px 0;
-    font-size: 11px;
-}
+:root { color-scheme: light; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17202a; background: #eef2f1; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.app-shell { max-width: 900px; margin: 0 auto; padding: 20px 14px 48px; }
+.topbar, .section-head, .row, .player-row, .round-meta, .score-line { display: flex; align-items: center; gap: 10px; }
+.topbar, .section-head { justify-content: space-between; }
+h1 { margin: 0; font-size: 1.55rem; } h2 { margin: 0; font-size: 1.2rem; } h3 { margin: 18px 0 8px; font-size: 1rem; }
+.muted, .status { color: #5a6570; } .status { margin: 10px 0; }
+.error { color: #a52222; background: #fff0f0; border: 1px solid #e7b6b6; padding: 10px; border-radius: 6px; }
+.success { color: #17623b; }
+.section { margin-top: 16px; background: #fff; border: 1px solid #d6ddda; border-radius: 6px; padding: 16px; }
+.form-grid { display: grid; gap: 12px; } label { display: grid; gap: 5px; font-weight: 650; }
+input, select { width: 100%; min-height: 44px; border: 1px solid #aebbb6; border-radius: 5px; padding: 8px 10px; background: #fff; }
+button { min-height: 44px; border: 1px solid #24624a; border-radius: 5px; padding: 8px 14px; background: #24624a; color: #fff; font-weight: 700; }
+button.secondary { background: #fff; color: #24624a; } button:disabled { opacity: .55; cursor: wait; }
+.player-grid, .active-grid, .special-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.choice { display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 8px 10px; border: 1px solid #bcc8c3; border-radius: 5px; font-weight: 650; }
+.choice input { width: 20px; min-height: 20px; } .player-row { margin-top: 8px; } .player-row input { flex: 1; }
+.score-list { list-style: none; padding: 0; margin: 0; } .score-line { justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #e4e9e7; }
+.score-value { font-weight: 800; } .round { padding: 12px 0; border-bottom: 1px solid #e4e9e7; }
+.round-meta { justify-content: space-between; align-items: flex-start; } .round-meta small { color: #66716c; }
+.round-points { margin-top: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+.help { font-size: .9rem; color: #5a6570; } .hidden { display: none !important; }
+@media (min-width: 680px) { .active-grid, .special-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
